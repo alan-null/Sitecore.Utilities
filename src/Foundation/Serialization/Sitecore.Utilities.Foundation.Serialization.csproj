@@ -88,6 +88,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Config\Modules\Sitecore.Utilities\Foundation\Sitecore.Utilities.Foundation.Serialization.config" />
     <None Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
