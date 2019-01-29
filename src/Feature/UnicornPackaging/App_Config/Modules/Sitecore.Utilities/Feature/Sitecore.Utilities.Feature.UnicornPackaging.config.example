@@ -1,0 +1,46 @@
+<configuration xmlns:patch="http://www.sitecore.net/xmlconfig/">
+  <sitecore>
+    <unicorn>
+      <configurations>
+        <configuration name="Sitecore.Utilities.Feature.UnicornPackaging.Example" description="" dependencies="Sitecore.Utilities.Foundation.Serialization">
+          <targetDataStore physicalRootPath="$(sourceFolder)\Feature\UnicornPackaging\serialization-example" type="Rainbow.Storage.SerializationFileSystemDataStore, Rainbow" useDataCache="false" singleInstance="true" />
+          <predicate type="Unicorn.Predicates.SerializationPresetPredicate, Unicorn" singleInstance="true">
+            <include name="Content" database="master" path="/sitecore/content/Home"/>
+            <include name="Template" database="master" path="/sitecore/templates/Sample/Sample Item"/>
+          </predicate>
+        </configuration>
+      </configurations>
+    </unicorn>
+    <packaging>
+
+      <!-- 
+            Include all items from configuration  'Sitecore.Utilities.Feature.UnicornPackaging.Example' 
+            Use 'Overwrite' as an install option
+            -->
+      <configuration name="UnicornPackaging.Example.OverwriteEveryItem" unicornConfiguration="Sitecore.Utilities.Feature.UnicornPackaging.Example">
+        <unicorn include="*" install="Overwrite"/>
+      </configuration>
+
+
+      <!-- 
+            Include items from configuration  'Sitecore.Utilities.Feature.UnicornPackaging.Example' 
+            Add include named 'Content' with Merge/Merge options
+            Add include named 'Template' with Overwrite option
+            -->
+      <configuration name="UnicornPackaging.Example.InstallOptions" unicornConfiguration="Sitecore.Utilities.Feature.UnicornPackaging.Example">
+        <unicorn include="Content" install="Merge" Merge="Merge" />
+        <unicorn include="Template" install="Overwrite"/>
+      </configuration>
+
+      <!-- 
+            Include files and directories
+            Include 'Newtonsoft.Json.dll' from bin folder
+            Include all content under 'Website\App_Config\Modules\Sitecore.Utilities'
+            -->
+      <configuration name="UnicornPackaging.Example.FileSystem">
+        <file path="bin\Newtonsoft.Json.dll" install="Overwrite"/>
+        <dir path="App_Config\Modules\Sitecore.Utilities" install="Overwrite"/>
+      </configuration>
+    </packaging>
+  </sitecore>
+</configuration>

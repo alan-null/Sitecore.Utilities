@@ -67,6 +67,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="App_Config\Modules\Sitecore.Utilities\Feature\Sitecore.Utilities.Feature.UnicornPackaging.config.example" />
     <None Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
