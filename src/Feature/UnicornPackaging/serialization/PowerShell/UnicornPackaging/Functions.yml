@@ -1,0 +1,14 @@
+﻿---
+ID: "93ce70dd-d117-4139-aa02-f151e0f10935"
+Parent: "b2612d8f-1377-48c7-8c37-97373948c494"
+Template: "ab154d3d-1126-4ab4-ac21-8b86e6bd70ea"
+Path: /sitecore/system/Modules/PowerShell/Script Library/Utilities/UnicornPackaging/Functions
+DB: master
+Languages:
+- Language: en
+  Versions:
+  - Version: 1
+    Fields:
+    - ID: "25bed78c-4957-4165-998a-ca1b52f67497"
+      Hint: __Created
+      Value: 20190129T190419Z

@@ -1,0 +1,122 @@
+﻿---
+ID: "06089b3e-c727-4081-bda3-ac0ad793e0e3"
+Parent: "93ce70dd-d117-4139-aa02-f151e0f10935"
+Template: "dd22f1b3-bd87-4db2-9e7d-f7a496888d43"
+Path: "/sitecore/system/Modules/PowerShell/Script Library/Utilities/UnicornPackaging/Functions/Add-Items"
+DB: master
+SharedFields:
+- ID: "b1a94ff0-6897-47c0-9c51-aa6acb80b1f0"
+  Hint: Script
+  Value: |
+    function Add-Items {
+        [CmdletBinding()]
+        param(
+            [Parameter(Mandatory = $true, Position = 0 )]
+            [Sitecore.Install.PackageProject]$PackageProject,
+    
+            [Parameter(Mandatory = $true, Position = 1 )]
+            [System.Xml.XmlElement]$Config		
+        )
+    
+        begin {
+            Write-Verbose "Cmdlet Add-Items - Begin"
+            Import-Function Get-InstallMode
+            Import-Function Get-MergeMode
+            Import-Function Get-UnicornIncludes
+            Import-Function Get-ItemsData
+        }
+    
+        process {		
+            Write-Verbose "Cmdlet Add-Items - Process"
+            $sourceName = $Config.Name
+            $index = 0 
+            $unicornNodes = $Config.ChildNodes | ? { $_.Name -eq "unicorn" }
+            foreach ($unicorn in $unicornNodes) {
+                $unicornConfiguration = Get-UnicornConfiguration $pckConfig.unicornConfiguration
+                $installMode = Get-InstallMode $unicorn
+                $mergeMode = Get-MergeMode $unicorn
+                $includes = Get-UnicornIncludes $unicorn $unicornConfiguration
+    			
+                $explicitItemSources = $unicorn.ChildNodes | ? { $_.Name -eq "item" } | ? { $_.HasAttributes -eq $true }
+                if ($explicitItemSources -ne $null) {
+                    Write-Verbose "$($unicorn.Include) has overwrites"
+                    foreach ($explicitItemDefinition in $explicitItemSources) {
+    					
+                        if ($unicorn.include -eq "*") {
+                            [item[]]$items = Get-ItemsData $unicornConfiguration | % { Get-Item -Path "$($_.DatabaseName):$($_.Path)" }
+                        }
+                        else {
+                            [item[]]$items = Get-ItemsData $unicornConfiguration | ? { $_.Path.StartsWith($includes.Path, "CurrentCultureIgnoreCase") } | ? { $_.Database.Equals($includes.DatabaseName, "CurrentCultureIgnoreCase") } | % { Get-Item -Path "$($_.DatabaseName):$($_.Path)" }
+                        }
+                        foreach ($item in $items) {
+                            if ($explicitItemDefinition.GetAttribute("path") -eq $item.Paths.Path) {
+                                Write-Verbose "New-ExplicitItemSource[specific] $($item.Paths.Path)"
+                                $source = $item | New-ExplicitItemSource -Name ($sourceName + $index) -InstallMode (Get-InstallMode $explicitItemDefinition) -MergeMode (Get-MergeMode $explicitItemDefinition)
+                                $index++
+                                $PackageProject.Sources.Add($source);
+                            }
+                            else {
+                                Write-Verbose "New-ExplicitItemSource[default] $($item.Paths.Path)"
+                                $source = $item | New-ExplicitItemSource -Name ($sourceName + " " + $index) -InstallMode $installMode -MergeMode $mergeMode
+                                $index++
+                                $PackageProject.Sources.Add($source);
+                            }
+                        }
+                    }
+                }
+                else {
+    				
+                    $method = $unicornConfiguration.GetType().GetMethods() | ? { $_.Name -eq "Resolve"} | ? { $_.ReturnType.Name -eq "T" } | Select-Object -First 1 				
+                    $IPredicate = $method.MakeGenericMethod([Unicorn.Predicates.IPredicate]).Invoke($unicornConfiguration, $null)
+                    $details = $IPredicate.GetConfigurationDetails()
+    
+                    foreach ($configurationInfo in $details) {
+                        $configValue = $configurationInfo.Value
+                        $namedConfiguration = $configurationInfo.Key
+    					
+                        $ok = $false
+                        foreach ($IItemData in $includes) {
+                            $concatenated = "$($IItemData.DatabaseName):$($IItemData.Path)"
+                            if ($configValue -eq $concatenated) {
+                                $ok = $true
+                            }
+                        }
+    					
+                        if ($ok) {
+                            Write-Verbose "[ALL][$namedConfiguration] $($configValue)"
+                            $sourceItem = Get-Item $configValue
+                            $sourceName = (($pckConfig.unicornConfiguration) + " - " + $namedConfiguration)
+                            $source = New-ItemSource -Root ($sourceItem.Paths.Path) -Database ($sourceItem.Database) -Name $sourceName -InstallMode $installMode -MergeMode $mergeMode
+                            $PackageProject.Sources.Add($source)
+                        }
+                        else {
+                            $explicitSourceConfigName = $includes | ? { $_.Name -eq $namedConfiguration } | Select-Object -First 1
+                            if ($explicitSourceConfigName) {
+                                [item[]]$items = Get-ItemsData $unicornConfiguration | ? { $_.Path.StartsWith($explicitSourceConfigName.Path, "CurrentCultureIgnoreCase") } | ? { $_.DatabaseName.Equals($explicitSourceConfigName.DatabaseName, "CurrentCultureIgnoreCase") } | % { Get-Item -Path "$($_.DatabaseName):$($_.Path)" }
+                                $index = 0
+                                foreach ($item in $items) {
+                                    Write-Verbose "[Explicit][$namedConfiguration] $($item.Paths.Path)"
+                                    $sourceName = ((($pckConfig.unicornConfiguration) + " - " + $namedConfiguration) + $index)
+                                    $source = $item | New-ExplicitItemSource -Name $sourceName -InstallMode $installMode -MergeMode $mergeMode
+                                    $PackageProject.Sources.Add($source)
+                                    $index++
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    
+        end {
+            Write-Verbose "Cmdlet Add-Items - End"
+        }
+    }
+Languages:
+- Language: en
+  Versions:
+  - Version: 1
+    Fields:
+    - ID: "25bed78c-4957-4165-998a-ca1b52f67497"
+      Hint: __Created
+      Value: 20190129T190916Z
