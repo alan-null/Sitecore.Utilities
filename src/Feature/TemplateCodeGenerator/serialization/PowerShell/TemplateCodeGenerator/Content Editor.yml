@@ -1,0 +1,14 @@
+﻿---
+ID: "3570ab50-e56e-42cf-8b78-50ca14ca7093"
+Parent: "786cd62d-abf1-4562-ae80-bfbd71b47379"
+Template: "ab154d3d-1126-4ab4-ac21-8b86e6bd70ea"
+Path: /sitecore/system/Modules/PowerShell/Script Library/Utilities/TemplateCodeGenerator/Content Editor
+DB: master
+Languages:
+- Language: en
+  Versions:
+  - Version: 1
+    Fields:
+    - ID: "25bed78c-4957-4165-998a-ca1b52f67497"
+      Hint: __Created
+      Value: 20160714T140711Z
