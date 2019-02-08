@@ -1,0 +1,42 @@
+﻿---
+ID: "055b9730-9d62-4984-8a73-1052c7b0f668"
+Parent: "318e62e6-8055-4f0a-aa7f-dd6085f1ea43"
+Template: "dd22f1b3-bd87-4db2-9e7d-f7a496888d43"
+Path: "/sitecore/system/Modules/PowerShell/Script Library/Utilities/CacheViewer/Functions/Show-CacheViewer"
+DB: master
+SharedFields:
+- ID: "b1a94ff0-6897-47c0-9c51-aa6acb80b1f0"
+  Hint: Script
+  Value: |
+    function Show-CacheViewer {
+        [CmdletBinding()]
+        param()
+    
+        begin {
+            Write-Verbose "Cmdlet Show-CacheViewer - Begin"
+            Import-Function Get-Percentage
+            Import-Function Get-CacheViewerParameters
+        }
+    
+        process {
+            Write-Verbose "Cmdlet Show-CacheViewer - Process"
+            $cache = [Sitecore.Caching.CacheManager]::GetAllCaches()
+            $cache = $cache | % { @{This = $_} }
+    
+            $params = Get-CacheViewerParameters
+            $cache | Show-ListView -Title "Sitecore Utils | Cache Reader" -PageSize 25 -Property $params
+        }
+    
+        end {
+            Write-Verbose "Cmdlet Show-CacheViewer - End"
+            Close-Window
+        }
+    }
+Languages:
+- Language: en
+  Versions:
+  - Version: 1
+    Fields:
+    - ID: "25bed78c-4957-4165-998a-ca1b52f67497"
+      Hint: __Created
+      Value: 20190207T221858Z

@@ -1,0 +1,53 @@
+﻿---
+ID: "8ee410b8-dcb1-427c-9b2f-fb45de3688a1"
+Parent: "dff9f7d8-1519-42d4-8c8b-7e4cb8b4ba60"
+Template: "dd22f1b3-bd87-4db2-9e7d-f7a496888d43"
+Path: /sitecore/system/Modules/PowerShell/Script Library/Utilities/CacheViewer/Internal/List View/Ribbon/CacheEntry/Open
+DB: master
+SharedFields:
+- ID: "06d5295c-ed2f-4a54-9bf2-26228d113318"
+  Hint: __Icon
+  Value: Office/32x32/box_out.png
+- ID: "1c76313e-3c8c-4807-a826-135d10c39299"
+  Hint: ShowRule
+  Type: Rules
+  Value: 
+- ID: "b1a94ff0-6897-47c0-9c51-aa6acb80b1f0"
+  Hint: Script
+  Value: |
+    $entry = $selectedData[0]
+    $data = $entry.Data | fl | out-string
+    write-log "debug"
+    write-log $data
+    # $data = $data.Replace("`n","</br>")
+    
+    $html = "<div style=`"border: 1px solid gray;`">$data</div>"
+    # $data = $html
+    
+    $params = @()
+    $params += @{ Name = "Formatted"; Title = "Formatted"; Value = $html; editor = "info"; Tab = "Formatted"}
+    $params += @{ Name = "Raw"; Title = "Raw"; Value = $data; Tab = "Raw"  ; Lines=12 }
+    Read-Variable -Parameters $params `
+        -Description "key: $($entry.Key)" `
+        -Title "Entry View" `
+        -Width 500 `
+        -Height 500 
+- ID: "ba3f86a2-4a1c-4d78-b63d-91c2779c1b5e"
+  Hint: __Sortorder
+  Value: 100
+Languages:
+- Language: en
+  Fields:
+  - ID: "b5e02ad9-d56f-4c41-a065-a133db87bdeb"
+    Hint: __Display name
+    Value: Open Entry
+  Versions:
+  - Version: 1
+    Fields:
+    - ID: "25bed78c-4957-4165-998a-ca1b52f67497"
+      Hint: __Created
+      Value: 20161223T093342Z
+    - ID: "5dd74568-4d4b-44c1-b513-0af5f4cda34f"
+      Hint: __Created by
+      Value: |
+        sitecore\Admin

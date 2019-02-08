@@ -1,0 +1,28 @@
+﻿---
+ID: "acbd1ca8-16b6-4a5e-a6e1-4aaf219e7a08"
+Parent: "a086b6d0-9b3a-489b-a6e2-6b376d3e6eef"
+Template: "dd22f1b3-bd87-4db2-9e7d-f7a496888d43"
+Path: /sitecore/system/Modules/PowerShell/Script Library/Utilities/CacheViewer/Toolbox/CacheViewer
+DB: master
+SharedFields:
+- ID: "06d5295c-ed2f-4a54-9bf2-26228d113318"
+  Hint: __Icon
+  Value: Office/32x32/magnifying_glass_black.png
+- ID: "b1a94ff0-6897-47c0-9c51-aa6acb80b1f0"
+  Hint: Script
+  Value: |
+    Import-Function Show-CacheViewer
+    
+    Show-CacheViewer
+Languages:
+- Language: en
+  Fields:
+  - ID: "b5e02ad9-d56f-4c41-a065-a133db87bdeb"
+    Hint: __Display name
+    Value: Cache Viewer
+  Versions:
+  - Version: 1
+    Fields:
+    - ID: "25bed78c-4957-4165-998a-ca1b52f67497"
+      Hint: __Created
+      Value: 20190201T110925Z

@@ -1,0 +1,14 @@
+﻿---
+ID: "0ea7d803-fc22-4fb5-ab4f-f475011681d5"
+Parent: "ee348d6f-61c8-4b75-9932-2af9dba22081"
+Template: "ab154d3d-1126-4ab4-ac21-8b86e6bd70ea"
+Path: /sitecore/system/Modules/PowerShell/Script Library/Utilities/CacheViewer/Internal
+DB: master
+Languages:
+- Language: en
+  Versions:
+  - Version: 1
+    Fields:
+    - ID: "25bed78c-4957-4165-998a-ca1b52f67497"
+      Hint: __Created
+      Value: 20190201T110904Z

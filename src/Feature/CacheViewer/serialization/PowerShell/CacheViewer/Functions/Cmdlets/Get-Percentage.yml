@@ -1,0 +1,38 @@
+﻿---
+ID: "8603c660-c641-4ec1-87fd-40542d132d23"
+Parent: "18cb07a1-1770-475b-bebb-7cdff00da199"
+Template: "dd22f1b3-bd87-4db2-9e7d-f7a496888d43"
+Path: "/sitecore/system/Modules/PowerShell/Script Library/Utilities/CacheViewer/Functions/Cmdlets/Get-Percentage"
+DB: master
+SharedFields:
+- ID: "b1a94ff0-6897-47c0-9c51-aa6acb80b1f0"
+  Hint: Script
+  Value: |
+    function Get-Percentage {
+        [CmdletBinding()]
+        param($entry)
+        
+        begin {
+            Write-Verbose "Cmdlet Get-Percentage - Begin"
+        }
+        
+        process {
+            Write-Verbose "Cmdlet Get-Percentage - Process"
+            if ($entry.MaxSize -ne 0) {
+                [int]$r = 100 * $entry.Size / $entry.MaxSize
+                $r.ToString() + "%"
+            }
+        }
+    
+        end {
+            Write-Verbose "Cmdlet Get-Percentage - End"
+        }
+    }
+Languages:
+- Language: en
+  Versions:
+  - Version: 1
+    Fields:
+    - ID: "25bed78c-4957-4165-998a-ca1b52f67497"
+      Hint: __Created
+      Value: 20190208T155024Z
