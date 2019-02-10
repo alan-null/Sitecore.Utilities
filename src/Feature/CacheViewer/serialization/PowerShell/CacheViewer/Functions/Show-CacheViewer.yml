@@ -24,7 +24,7 @@ SharedFields:
             $cache = $cache | % { @{This = $_} }
     
             $params = Get-CacheViewerParameters
-            $cache | Show-ListView -Title "Sitecore Utils | Cache Reader" -PageSize 25 -Property $params
+            $cache | Show-ListView -Title "Sitecore Utils | Cache Viewer" -PageSize 25 -Property $params
         }
     
         end {
