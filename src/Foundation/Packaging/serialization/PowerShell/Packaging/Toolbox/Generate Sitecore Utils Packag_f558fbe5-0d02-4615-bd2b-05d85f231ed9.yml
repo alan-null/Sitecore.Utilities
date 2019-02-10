@@ -1,0 +1,29 @@
+﻿---
+ID: "f558fbe5-0d02-4615-bd2b-05d85f231ed9"
+Parent: "62c17d9e-74d9-45d3-b7a0-f25f192d0996"
+Template: "dd22f1b3-bd87-4db2-9e7d-f7a496888d43"
+Path: /sitecore/system/Modules/PowerShell/Script Library/Utilities/Packaging/Toolbox/Generate Sitecore Utils Packages
+DB: master
+SharedFields:
+- ID: "06d5295c-ed2f-4a54-9bf2-26228d113318"
+  Hint: __Icon
+  Value: Office/32x32/box_into.png
+- ID: "b1a94ff0-6897-47c0-9c51-aa6acb80b1f0"
+  Hint: Script
+  Value: |
+    Import-Function New-UtilsPackage -Module "Packaging"
+    
+    [System.Xml.XmlNode[]]$allPackageConfigurationConfigs = [Sitecore.Configuration.Factory]::GetConfigNodes("/sitecore/packaging/configuration")
+    
+    $allPackageConfigurationConfigs | ? { $_.Name.StartsWith("Sitecore.Utilities.Feature.") } | % {
+        Write-Host "Generating pacakge: '$($_.unicornConfiguration)'" -ForegroundColor Green
+        New-UtilsPackage $_.Name
+    }
+Languages:
+- Language: en
+  Versions:
+  - Version: 1
+    Fields:
+    - ID: "25bed78c-4957-4165-998a-ca1b52f67497"
+      Hint: __Created
+      Value: 20190210T135302Z

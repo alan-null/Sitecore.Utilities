@@ -1,0 +1,40 @@
+﻿---
+ID: "e337b3f2-4095-4e56-a15f-e534b80ceecd"
+Parent: "62c17d9e-74d9-45d3-b7a0-f25f192d0996"
+Template: "dd22f1b3-bd87-4db2-9e7d-f7a496888d43"
+Path: /sitecore/system/Modules/PowerShell/Script Library/Utilities/Packaging/Toolbox/Generate Sitecore Utils Package
+DB: master
+SharedFields:
+- ID: "06d5295c-ed2f-4a54-9bf2-26228d113318"
+  Hint: __Icon
+  Value: Office/32x32/box_into.png
+- ID: "b1a94ff0-6897-47c0-9c51-aa6acb80b1f0"
+  Hint: Script
+  Value: |
+    Import-Function New-UtilsPackage -Module "Packaging"
+    
+    [System.Xml.XmlNode[]]$allPackageConfigurationConfigs = [Sitecore.Configuration.Factory]::GetConfigNodes("/sitecore/packaging/configuration")
+    
+    $dialogOptions = @{}
+    $allPackageConfigurationConfigs.Name | ForEach-Object { $dialogOptions.Add($_, $_) }
+    $selectedConfiguration = $Configurations.Name
+    $result = Read-Variable -Parameters `
+    @{ Name = "selectedConfiguration"; Title = "Configurations"; Options = $dialogOptions; Editor = "radio"; Height = "330px"; Tab = "General"; } `
+        -Description "This script will generate package for given packaging configuration" `
+        -Title "Generate Sitecore Utility Package" -Width 500 -Height 600 `
+        -OkButtonName "OK" -CancelButtonName "Cancel" `
+    
+    if ($result -ne "ok") {
+        Close-Window
+        exit
+    }
+    
+    New-UtilsPackage $selectedConfiguration
+Languages:
+- Language: en
+  Versions:
+  - Version: 1
+    Fields:
+    - ID: "25bed78c-4957-4165-998a-ca1b52f67497"
+      Hint: __Created
+      Value: 20190210T130139Z

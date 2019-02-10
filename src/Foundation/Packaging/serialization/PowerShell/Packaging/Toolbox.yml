@@ -1,0 +1,14 @@
+﻿---
+ID: "62c17d9e-74d9-45d3-b7a0-f25f192d0996"
+Parent: "65a9552d-9538-47df-b3ff-b29e7680c82a"
+Template: "ab154d3d-1126-4ab4-ac21-8b86e6bd70ea"
+Path: /sitecore/system/Modules/PowerShell/Script Library/Utilities/Packaging/Toolbox
+DB: master
+Languages:
+- Language: en
+  Versions:
+  - Version: 1
+    Fields:
+    - ID: "25bed78c-4957-4165-998a-ca1b52f67497"
+      Hint: __Created
+      Value: 20190210T125927Z

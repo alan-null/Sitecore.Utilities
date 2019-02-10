@@ -1,0 +1,64 @@
+﻿---
+ID: "6971f885-a118-4017-9398-3f467bff94bc"
+Parent: "276fbf6f-bafc-4ac5-9432-524fce8bf6bd"
+Template: "dd22f1b3-bd87-4db2-9e7d-f7a496888d43"
+Path: "/sitecore/system/Modules/PowerShell/Script Library/Utilities/Packaging/Functions/New-UtilsPackage"
+DB: master
+SharedFields:
+- ID: "b1a94ff0-6897-47c0-9c51-aa6acb80b1f0"
+  Hint: Script
+  Value: |
+    function New-UtilsPackage {
+        [CmdletBinding()]
+        param($selectedConfiguration)
+        
+        begin {
+            Write-Verbose "Cmdlet New-UtilsPackage - Begin"
+            Import-Function Get-Package -Module "UnicornPackaging"
+        }
+        
+        process {
+            Write-Verbose "Cmdlet New-UtilsPackage - Process"
+            [System.Xml.XmlNode[]]$allPackageConfigurationConfigs = [Sitecore.Configuration.Factory]::GetConfigNodes("/sitecore/packaging/configuration")
+            $selectedConfiguration = $allPackageConfigurationConfigs | ? { $_.Name -eq $selectedConfiguration }
+    
+            [System.Xml.XmlNode[]]$packageConfigurations = @()
+            $config = [Unicorn.ControlPanel.ControlPanelUtility]::ResolveConfigurationsFromQueryParameter($selectedConfiguration.unicornConfiguration) | Select-Object -First 1
+            $packageConfigurations += $selectedConfiguration
+            $configurationDependencyResolver = [Unicorn.Configuration.Dependencies.ConfigurationDependencyResolver]::new($config)
+            $configurationDependencyResolver.Dependencies.Configuration.Name | Select-Object -Unique | % { 
+                $cur = $_
+                $curConfiguration = $allPackageConfigurationConfigs | ? { $_.unicornConfiguration -eq $cur }
+                $packageConfigurations += $curConfiguration
+            }
+    
+            $packageVersion = $selectedConfiguration.version
+            $packageName = "$($selectedConfiguration.unicornConfiguration)-$packageVersion"
+            Write-Host "Generating package with following packaging configurations:"
+            $packageConfigurations | % {Write-Host "`t$($_.Name)"}
+    
+            # Generate package
+            $start = Get-Date
+            $package = Get-Package $packageConfigurations
+            $package.Metadata.PackageName = $packageName
+            $package.Metadata.Author = "Alan Płócieniak"
+            $package.Metadata.Version = $packageVersion
+            $package.Name = $packageName
+    
+            $start = Get-Date
+            Export-Package -Project $package -Path "$($SitecorePackageFolder)\$($packageName).zip" -Zip
+            Write-Host "Package generated [$(((Get-Date)-$start).Milliseconds) ms]"
+        }
+    
+        end {
+            Write-Verbose "Cmdlet New-UtilsPackage - End"
+        }
+    }
+Languages:
+- Language: en
+  Versions:
+  - Version: 1
+    Fields:
+    - ID: "25bed78c-4957-4165-998a-ca1b52f67497"
+      Hint: __Created
+      Value: 20190210T133756Z
