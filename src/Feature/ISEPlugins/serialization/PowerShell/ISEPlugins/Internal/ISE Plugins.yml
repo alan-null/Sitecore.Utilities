@@ -1,0 +1,14 @@
+﻿---
+ID: "5883c796-c5e6-4d9e-af3a-78845d789b64"
+Parent: "b445b868-1293-4f66-96c5-6d13c08360fa"
+Template: "ab154d3d-1126-4ab4-ac21-8b86e6bd70ea"
+Path: /sitecore/system/Modules/PowerShell/Script Library/Utilities/ISEPlugins/Internal/ISE Plugins
+DB: master
+Languages:
+- Language: en
+  Versions:
+  - Version: 1
+    Fields:
+    - ID: "25bed78c-4957-4165-998a-ca1b52f67497"
+      Hint: __Created
+      Value: 20191008T185616Z
