@@ -32,7 +32,7 @@ Custom plugins for PowerShell ISE. Current version consists of:
 ![iseplugins](https://user-images.githubusercontent.com/6848691/70081410-c5a9a400-1608-11ea-98bb-d0bc68209330.gif)
 
 ### Links
-- [CacheViewer-1.0.zip](https://github.com/alan-null/Sitecore.Utilities/releases/download/2019-12-10/Sitecore.Utilities.Feature.ISEPlugins-1.0.zip)
+- [ISEPlugins-1.0.zip](https://github.com/alan-null/Sitecore.Utilities/releases/download/2019-12-10/Sitecore.Utilities.Feature.ISEPlugins-1.0.zip)
 
 
 ## TemplateCodeGenerator
