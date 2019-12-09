@@ -1,0 +1,14 @@
+﻿---
+ID: "9daa7bdd-b2cf-4b26-bafd-e9d5a3b47381"
+Parent: "c978cce5-6c7a-468c-934b-f2738aa44af3"
+Template: "ab154d3d-1126-4ab4-ac21-8b86e6bd70ea"
+Path: /sitecore/system/Modules/PowerShell/Script Library/Utilities/UnicornDependencyGraphGenerator/Functions
+DB: master
+Languages:
+- Language: en
+  Versions:
+  - Version: 1
+    Fields:
+    - ID: "25bed78c-4957-4165-998a-ca1b52f67497"
+      Hint: __Created
+      Value: 20191208T215318Z

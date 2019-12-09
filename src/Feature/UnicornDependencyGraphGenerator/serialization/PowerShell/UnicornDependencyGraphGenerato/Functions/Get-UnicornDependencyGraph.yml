@@ -1,0 +1,502 @@
+﻿---
+ID: "7218e684-16b4-4b0b-b85a-de6295abbaa7"
+Parent: "9daa7bdd-b2cf-4b26-bafd-e9d5a3b47381"
+Template: "dd22f1b3-bd87-4db2-9e7d-f7a496888d43"
+Path: "/sitecore/system/Modules/PowerShell/Script Library/Utilities/UnicornDependencyGraphGenerator/Functions/Get-UnicornDependencyGraph"
+DB: master
+SharedFields:
+- ID: "b1a94ff0-6897-47c0-9c51-aa6acb80b1f0"
+  Hint: Script
+  Value: |
+    Import-Function Copy-RemoteResource
+    
+    function Get-ComputedDependencyGraphUrl {
+        [CmdletBinding()]
+        param(
+            [Parameter(Mandatory=$true, Position=0 )]
+            [Hashtable]$allDependenciesClean
+        )
+    
+        begin {
+            Write-Verbose "Cmdlet Get-ComputedDependencyGraphUrl - Begin"
+        }
+    
+        process {
+            $r = ""
+            $allDependenciesClean.Keys | ?{ $allDependenciesClean[$_] -ne $null } | %{
+                $configName = $_
+                $computedDependencies = $allDependenciesClean[$configName] | ? { $_ -ne $configName}
+    
+                $configReport = ($computedDependencies | % { "[$configName]-->[$_]" }) -join ","
+                $r = $r, $configReport -join ","
+            }
+            "https://yuml.me/diagram/nofunky/class/$r"
+        }
+    
+        end {
+            Write-Verbose "Cmdlet Get-ComputedDependencyGraphUrl - End"
+        }
+    }
+    
+    function Get-ConfigDependencyGraphUrl {
+        [CmdletBinding()]
+        param(
+            [Parameter(Mandatory=$true, Position=0 )]
+            [Hashtable]$allDependenciesClean,
+    
+            [Parameter(Mandatory=$true, Position=1 )]
+            [object[]]$allUnicornConfigs
+        )
+    
+        begin {
+            Write-Verbose "Cmdlet Get-ConfigDependencyGraphUrl - Begin"
+        }
+    
+        process {
+            $r = ""
+            $allDependenciesClean.Keys | ?{ $allDependenciesClean[$_] -ne $null } | %{
+                $configName = $_
+    
+                $configDependencies = ($allUnicornConfigs | ? { $_.Name -eq $configName } | Select-Object -First 1).Dependencies
+    
+    
+                $configReport = ($configDependencies | % { "[$configName]-->[$_]" }) -join ","
+                $r = $r, $configReport -join ","
+            }
+    
+            "https://yuml.me/diagram/nofunky/class/$r"
+        }
+    
+        end {
+            Write-Verbose "Cmdlet Get-ConfigDependencyGraphUrl - End"
+        }
+    }
+    
+    function Get-DiffDependencyGraphUrl {
+        [CmdletBinding()]
+        param(
+            [Parameter(Mandatory=$true, Position=0 )]
+            [Hashtable]$allDependenciesClean,
+    
+            [Parameter(Mandatory=$true, Position=1 )]
+            [object[]]$allUnicornConfigs
+        )
+    
+        begin {
+            Write-Verbose "Cmdlet Get-DiffDependencyGraphUrl - Begin"
+        }
+    
+        process {
+            $r = ""
+            $allDependenciesClean.Keys | ?{ $allDependenciesClean[$_] -ne $null } | %{
+                $configName = $_
+    
+    
+                $computedDependencies = $allDependenciesClean[$configName] | ? { $_ -ne $configName}
+                $configDependencies = ($allUnicornConfigs | ? { $_.Name -eq $configName } | Select-Object -First 1).Dependencies
+    
+                $missing = Compare-Object $configDependencies $computedDependencies -IncludeEqual | ? { $_.SideIndicator -eq "=>" } | %{ $_.InputObject }
+                $missingFormated = ($missing | % { "[$configName]-->[$_]" }) -join ","
+                $redundant = Compare-Object $configDependencies $computedDependencies -IncludeEqual | ? { $_.SideIndicator -eq "<=" } | %{ $_.InputObject }
+                $redundantFormated = ($redundant | % { "[$configName]-.-^[$_]" }) -join ","
+    
+                $configReport = $missingFormated, $redundantFormated -join ","
+                $r = $r, $configReport -join ","
+            }
+    
+            "https://yuml.me/diagram/nofunky/class/$r"
+        }
+    
+        end {
+            Write-Verbose "Cmdlet Get-DiffDependencyGraphUrl - End"
+        }
+    }
+    
+    function Get-ItemDataChildren {
+        [CmdletBinding()]
+        param(
+            [Parameter(Mandatory=$true, Position=0 )]
+            [Rainbow.Model.IItemData]$IItemData,
+    
+            [Parameter(Mandatory=$true, Position=1 )]
+            [Unicorn.Data.ISourceDataStore]$ISourceDataStore,
+    
+            [Parameter(Mandatory=$true, Position=2 )]
+            [Unicorn.Predicates.IPredicate]$IPredicate
+        )
+    
+        begin {
+            Write-Verbose "Cmdlet Get-ItemDataChildren - Begin"
+        }
+    
+        process {
+    
+            Write-Verbose "Cmdlet Get-ItemDataChildren - Process"
+            $ISourceDataStore.GetChildren($IItemData) | %{
+                if($IPredicate.Includes($_).IsIncluded){
+                    $_
+                    Get-ItemDataChildren $_ $ISourceDataStore $IPredicate
+                }
+            }
+        }
+    
+        end {
+            Write-Verbose "Cmdlet Get-ItemDataChildren - End"
+        }
+    }
+    
+    function Get-ItemsData {
+        [CmdletBinding()]
+        param(
+            [Parameter(Mandatory=$true, Position=0 )]
+            [Unicorn.Configuration.IConfiguration]$Configuration
+        )
+    
+        begin {
+            Write-Verbose "Cmdlet Get-ItemsData - Begin"
+        }
+    
+        process {
+            Write-Verbose "Cmdlet Get-ItemsData - Process"
+            $method = $Configuration.GetType().GetMethods() | ? { $_.Name -eq "Resolve"} | ? { $_.ReturnType.Name -eq "T" } | Select-Object -First 1
+            $predicateRootPathResolver = $method.MakeGenericMethod([Unicorn.Predicates.PredicateRootPathResolver]).Invoke($Configuration, $null)
+            $sourceDataStore = $method.MakeGenericMethod([Unicorn.Data.ISourceDataStore]).Invoke($Configuration, $null)
+            $predicate = $method.MakeGenericMethod([Unicorn.Predicates.IPredicate]).Invoke($Configuration, $null)
+    
+            foreach($IItemData in $predicateRootPathResolver.GetRootSourceItems()){
+                $IItemData
+                Get-ItemDataChildren $IItemData $sourceDataStore $predicate
+            }
+        }
+    
+        end {
+            Write-Verbose "Cmdlet Get-ItemsData - End"
+        }
+    }
+    
+    function Get-UnicornConfiguration {
+        [CmdletBinding()]
+        param(
+            [Parameter(Mandatory=$false, Position=0 )]
+            [string]$ConfigurationName = ""
+        )
+    
+        begin {
+            Write-Verbose "Cmdlet Get-UnicornConfiguration - Begin"
+        }
+    
+        process {
+            Write-Verbose "Cmdlet Get-UnicornConfiguration - Process"
+            [Unicorn.ControlPanel.ControlPanelUtility]::ResolveConfigurationsFromQueryParameter($ConfigurationName)
+        }
+    
+        end {
+            Write-Verbose "Cmdlet Get-UnicornConfiguration - End"
+        }
+    }
+    
+    function Get-PredicateIncludes {
+        [CmdletBinding()]
+        param(
+            [Parameter(Mandatory=$true, Position=0 )]
+            [Unicorn.Configuration.IConfiguration]$Configuration
+        )
+    
+        begin {
+            Write-Verbose "Cmdlet Get-PredicateIncludes - Begin"
+        }
+    
+        process {
+            Write-Verbose "Cmdlet Get-PredicateIncludes - Process"
+            $method = $Configuration.GetType().GetMethods() | ? { $_.Name -eq "Resolve"} | ? { $_.ReturnType.Name -eq "T" } | Select-Object -First 1
+            $predicateRootPathResolver = $method.MakeGenericMethod([Unicorn.Predicates.PredicateRootPathResolver]).Invoke($Configuration, $null)
+            $predicateRootPathResolver.GetRootPaths()
+        }
+    
+        end {
+            Write-Verbose "Cmdlet Get-PredicateIncludes - End"
+        }
+    }
+    
+    function Get-ComparableObjects {
+        [CmdletBinding()]
+        param(
+            [Parameter(Mandatory=$true, Position=0 )]
+            [Unicorn.Configuration.IConfiguration[]]$Configurations
+        )
+    
+        begin {
+            Write-Verbose "Cmdlet Add-Files - Begin"
+        }
+    
+        process {
+            Write-Verbose "Cmdlet Add-Files - Process"
+            $result = New-Object System.Collections.ArrayList
+    
+            $Configurations | ForEach-Object {
+                $configName = $_
+                Get-ItemsData $configName | ForEach-Object {
+                    $obj = @{}
+                    $obj.ItemData =  $_
+                    $obj.Config =  $configName
+                    $result.Add($obj) | Out-Null
+                }
+            }
+            $result
+        }
+    
+        end {
+            Write-Verbose "Cmdlet Add-Files - End"
+        }
+    }
+    
+    function Get-TemplateDependency {
+        [CmdletBinding()]
+        param(
+            [Parameter(Mandatory=$true, Position=0 )]
+            $currentItemData
+        )
+    
+        begin {
+            Write-Verbose "Cmdlet Add-Files - Begin"
+        }
+    
+        process {
+            Write-Verbose "Cmdlet Add-Files - Process"
+            $templateIdKey = $currentItemData.ItemData.TemplateId.ToString()
+            if ($global_invalidTemplateIDs[$templateIdKey] -eq $null) {
+                $result = $global_templateIdToItemDataMapping[$templateIdKey]
+                if ($result -ne $null) {
+                    $result
+                }else {
+                    $objectForDifferentConfigs = $global_allObjects | Where-Object { $_.Config.Name -ne $currentItemData.Config.Name}
+                    $result = $objectForDifferentConfigs | Where-Object {$_.ItemData.ID -eq $currentItemData.ItemData.TemplateId } | Select-Object -First 1
+                    if ($result -ne $null) {
+                        $global_templateIdToItemDataMapping.Add($templateIdKey, $result)
+                        $result
+                    }else {
+                        $global_invalidTemplateIDs.Add($templateIdKey,1)
+                    }
+                }
+            }
+        }
+    
+        end {
+            Write-Verbose "Cmdlet Add-Files - End"
+        }
+    }
+    
+    function Get-Depependencies($configName, $allDependencies){
+        $start2 = Get-Date
+        # check depndencies by path include
+        $global_predicateIncludes[$configName].Path | % {
+            $currentPath = $_
+            $global_predicateIncludes.Keys | %{
+                $globalConfig = $_
+                if($globalConfig -ne $configName){
+                    $global_predicateIncludes[$globalConfig].Path | %{
+                        if($currentPath.Contains($_)){
+                            $allDependencies[$configName].Add($globalConfig) | Out-Null
+                        }
+                    }
+                }
+            }
+        }
+    
+    
+        # check depndencies by template
+        $configurationObjects  = $global_allObjects | Where-Object { $_.Config.Name -eq $configName}
+        $configurationObjects | ForEach-Object {
+            $result = Get-TemplateDependency $_
+            if ($result -ne $null) {
+                $allDependencies[$configName].Add($result.Config.Name) | Out-Null
+            }
+        }
+        Write-Verbose "Processing
+        [$((Get-Date) - $start2)] $configName"
+    }
+    
+    function Show-Dialog {
+        [CmdletBinding()]
+        param(
+            [Parameter(Mandatory=$true, Position=0 )]
+            [Unicorn.Configuration.IConfiguration[]]$Configurations
+        )
+    
+        begin {
+            Write-Verbose "Cmdlet Add-Files - Begin"
+        }
+    
+        process {
+            Write-Verbose "Cmdlet Add-Files - Process"
+            $dialogOptions = @{}
+            $Configurations.Name | ForEach-Object { $dialogOptions.Add($_, $_) }
+            $preSelectedConfigurations = $Configurations.Name
+            $result = Read-Variable -Parameters `
+                @{ Name = "preSelectedConfigurations"; Title = "Configurations"; Options = $dialogOptions; Editor = "checklist"; Tip = "Select which configuration should be used to generate dependency graph"; Height = "330px"; Tab = "General"; } `
+                -Description "This script will go through the selected unicorn configurations and generate dependency report" `
+                -Title "Generate Unicorn configurations dependency graph" -Width 500 -Height 600 `
+                -OkButtonName "OK" -CancelButtonName "Cancel" `
+    
+            if ($result -ne "ok") {
+                Close-Window
+                exit
+            }
+            $Configurations | Where-Object {$preSelectedConfigurations.Contains($_.Name)}
+        }
+    
+        end {
+            Write-Verbose "Cmdlet Add-Files - End"
+        }
+    
+    }
+    
+    function Show-ResultsDialog {
+        [CmdletBinding()]
+        param(
+            [Parameter(Mandatory=$true, Position=0 )]
+            [Hashtable]$allDependenciesClean,
+    
+            [Parameter(Mandatory=$true, Position=1 )]
+            [object[]]$allUnicornConfigs
+        )
+    
+        begin {
+            Write-Verbose "Cmdlet Show-ResultsDialog - Begin"
+        }
+    
+        process {
+            $result= "ok"
+            $graphModes = [ordered]@{}
+            $graphModes['Mixed dependency graph (redundant, missing dependencies)'] = "mixed"
+            $graphModes['Computed dependency graph'] = "computed"
+            $graphModes['Configuration based dependency graph'] = "config"
+    
+            $mapping = @{ }
+            while($result -eq "ok"){
+                $result = Read-Variable -Parameters `
+                    @{ Name = "Description"; Title=" "; Value="Please select graph you want to see and click Show button"; editor="info";}, `
+                    @{ Name = "graphMode"; Options=$graphModes; Value=""; Title="Graph mode"; } `
+                    -Description "This script will go through the selected unicorn configurations and generate dependency report" `
+                    -Title "Generate Unicorn configurations dependency graph" -Width 500 -Height 300 `
+                    -OkButtonName "Show" -CancelButtonName "Exit"
+                if($result -eq "cancel"){
+                    Exit
+                }
+    
+                switch ($graphMode) {
+                    "computed" {
+                        $url = Get-ComputedDependencyGraphUrl $allDependenciesClean
+                        $description = "Dependency graph based on item path/id dependency"
+                        $legend = "This graph represents desired dependency determined based on item's id/path dependencies between each module."
+                    }
+                    "config" {
+                        $url = Get-ConfigDependencyGraphUrl $allDependenciesClean $allUnicornConfigs
+                        $description = "Configuration based dependency graph"
+                        $legend = "This graph represents dependency that is currently set in your unicorn configuration files"
+                    }
+                    "mixed" {
+                        $url = Get-DiffDependencyGraphUrl  $allDependenciesClean $allUnicornConfigs
+                        $description = "Mixed graph"
+                        $legend = "Shows what you should do with your config files to fix dependency erros <br/> <b>Solid line</b> - missing dependency <br/> <b>Dotted line</b> - redundant dependency"
+                    }
+                    Default {
+                        $url = "https://alan-null.github.io"
+                    }
+                }
+    
+                if ($mapping[$url]) {
+                    $url = $mapping[$url]
+                }else {
+                    $key = $url
+                    $url = Copy-RemoteResource $url
+                    $mapping[$key] = $url
+                }
+                $result2 = Read-Variable -Parameters `
+                    @{ Name="Info0"; Title=""; Value='<img src="'+ $url +'""/>'; editor="info" }, `
+                    @{ Name="Info1"; Title="Legend:"; Value=$legend; editor="info" } `
+                    -Description $description -Title "Dependency Graph" -Width 1000 -Height 800 `
+                    -OkButtonName "Show different" -CancelButtonName "Exit"
+    
+                if($result2 -eq "cancel"){
+                    Exit
+                }
+            }
+        }
+    
+        end {
+            Write-Verbose "Cmdlet Show-ResultsDialog - End"
+        }
+    }
+    
+    
+    # initialize global variables
+    $start = Get-Date
+    $global_templateIdToItemDataMapping = @{}
+    $global_invalidTemplateIDs = @{}
+    
+    $global_invalidTemplateIDs.Add("962b53c4-f93b-4df9-9821-415c867b8903",1)
+    $global_invalidTemplateIDs.Add("f1828a2c-7e5d-4bbd-98ca-320474871548",1)
+    
+    
+    [System.Collections.ArrayList]$dependencies = New-Object "System.Collections.ArrayList"
+    [System.Xml.XmlNode[]]$allConfigs = [Sitecore.Configuration.Factory]::GetConfigNodes("/sitecore/unicorn/configurations/configuration")
+    $allUnicornConfigs = $allConfigs | ForEach-Object { Get-UnicornConfiguration $_.Name }
+    $configsToProcess = Show-Dialog $allUnicornConfigs
+    
+    
+    
+    $global_progress = 0.0
+    $global_allObjects = $allUnicornConfigs | ForEach-Object {
+        Write-Progress -Activity "Initializing objects"  `
+            -Status "Creating comparable objects for $($_.Name)" `
+            -PercentComplete ($global_progress)
+        $global_progress= $global_progress + 100.0 / ($allUnicornConfigs.Count)
+    
+        Get-ComparableObjects $_
+    }
+    
+    $global_predicateIncludes = @{}
+    $global_progress = 0.0
+    $allUnicornConfigs | ForEach-Object{ $global_predicateIncludes.Add("$($_.Name)", $(Get-PredicateIncludes $_)) }
+    (Get-Date) - $start
+    
+    
+    # initialize result tables
+    $allDependencies = @{}
+    $allDependenciesClean = @{}
+    $allUnicornConfigs.Name | ForEach-Object { $allDependencies.Add("$($_)", $(New-Object "System.Collections.ArrayList"))}
+    $allUnicornConfigs.Name | ForEach-Object { $allDependenciesClean.Add("$($_)", $null)}
+    
+    
+    $start = Get-Date
+    $configsToProcess | ForEach-Object {
+        Write-Progress -Activity "Analysing dependencies for $($_.Name)" `
+            -Status "Checking path/id dependencies" `
+            -PercentComplete ($global_progress)
+        $global_progress= $global_progress + 100.0 / ($configsToProcess.Count)
+        Get-Depependencies $_.Name $allDependencies
+    }
+    (Get-Date) - $start
+    
+    # print results
+    $allDependencies.Keys | %{
+        $allDependenciesClean[$_] = $allDependencies[$_] | Sort-Object | Get-Unique -AsString
+    }
+    
+    if((Show-Confirm -Title "Would you like to generate dependency report which can be then exported?") -eq "yes"){
+        $allDependenciesClean.Keys | ?{ $allDependenciesClean[$_] -ne $null } | Show-ListView -InfoTitle "Desired unicorn dependency configuration" `
+        -PageSize 25 `
+        -Property `
+        @{Label='Configuration'; Expression={$_} },
+        @{Label='Dependencies'; Expression={$allDependenciesClean[$_] -join ','} }
+    }
+    Show-ResultsDialog $allDependenciesClean $allUnicornConfigs
+Languages:
+- Language: en
+  Versions:
+  - Version: 1
+    Fields:
+    - ID: "25bed78c-4957-4165-998a-ca1b52f67497"
+      Hint: __Created
+      Value: 20191208T220003Z
