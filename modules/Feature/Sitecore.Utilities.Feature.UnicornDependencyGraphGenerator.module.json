@@ -1,0 +1,14 @@
+{
+  "namespace": "Sitecore.Utilities.Feature.UnicornDependencyGraphGenerator",
+  "items": {
+    "path": "~/src/Feature/UnicornDependencyGraphGenerator/serialization",
+    "includes": [
+      {
+        "name": "PowerShell",
+        "database": "master",
+        "path": "/sitecore/system/Modules/PowerShell/Script Library/Utilities/UnicornDependencyGraphGenerator",
+        "scope": "ItemAndDescendants"
+      }
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "namespace": "Sitecore.Utilities.Foundation.Serialization.PowerShell",
+  "items": {
+    "path": "~/src/Foundation/Serialization/serialization",
+    "includes": [
+      {
+        "name": "PowerShell",
+        "database": "master",
+        "path": "/sitecore/system/Modules/PowerShell/Script Library/Utilities",
+        "scope": "SingleItem"
+      }
+    ]
+  }
+}

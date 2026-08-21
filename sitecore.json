@@ -1,0 +1,11 @@
+{
+    "$schema": "./.sitecore/schemas/RootConfigurationFile.schema.json",
+    "modules": [
+        "modules/*/*.module.json",
+        "modules/*.module.json"
+    ],
+    "plugins": [
+        "Sitecore.DevEx.Extensibility.ResourcePackage@4.0.0-r00306",
+        "Sitecore.DevEx.Extensibility.Serialization@4.0.0-r00306"
+    ]
+}

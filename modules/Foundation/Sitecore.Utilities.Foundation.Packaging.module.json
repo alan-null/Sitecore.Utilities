@@ -1,0 +1,14 @@
+{
+  "namespace": "Sitecore.Utilities.Foundation.Packaging",
+  "items": {
+    "path": "~/src/Foundation/Packaging/serialization",
+    "includes": [
+      {
+        "name": "PowerShell",
+        "database": "master",
+        "path": "/sitecore/system/Modules/PowerShell/Script Library/Utilities/Packaging",
+        "scope": "ItemAndDescendants"
+      }
+    ]
+  }
+}

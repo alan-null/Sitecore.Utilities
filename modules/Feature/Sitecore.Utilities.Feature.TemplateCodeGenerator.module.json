@@ -1,0 +1,14 @@
+{
+  "namespace": "Sitecore.Utilities.Feature.TemplateCodeGenerator",
+  "items": {
+    "path": "~/src/Feature/TemplateCodeGenerator/serialization",
+    "includes": [
+      {
+        "name": "PowerShell",
+        "database": "master",
+        "path": "/sitecore/system/Modules/PowerShell/Script Library/Utilities/TemplateCodeGenerator",
+        "scope": "ItemAndDescendants"
+      }
+    ]
+  }
+}

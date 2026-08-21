@@ -1,0 +1,14 @@
+{
+  "namespace": "Sitecore.Utilities.Feature.ISEPlugins",
+  "items": {
+    "path": "~/src/Feature/ISEPlugins/serialization",
+    "includes": [
+      {
+        "name": "PowerShell",
+        "database": "master",
+        "path": "/sitecore/system/Modules/PowerShell/Script Library/Utilities/ISEPlugins",
+        "scope": "ItemAndDescendants"
+      }
+    ]
+  }
+}

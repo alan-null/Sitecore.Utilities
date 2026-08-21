@@ -1,0 +1,14 @@
+{
+  "namespace": "Sitecore.Utilities.Feature.CacheViewer",
+  "items": {
+    "path": "~/src/Feature/CacheViewer/serialization",
+    "includes": [
+      {
+        "name": "PowerShell",
+        "database": "master",
+        "path": "/sitecore/system/Modules/PowerShell/Script Library/Utilities/CacheViewer",
+        "scope": "ItemAndDescendants"
+      }
+    ]
+  }
+}

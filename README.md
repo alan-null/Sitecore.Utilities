@@ -86,3 +86,48 @@ Generates dependency graph for Unicorn configuration
 ### Links
 - [UnicornDependencyGraphGenerator-1.0.zip](https://github.com/alan-null/Sitecore.Utilities/releases/download/2019-12-10/Sitecore.Utilities.Feature.UnicornDependencyGraphGenerator-1.0.zip)
 - [Blog post](https://alan-null.github.io/2017/01/unicorn-dependency-graph)
+
+---
+
+# Packaging with Sitecore CLI
+
+Resource packages (`.dat` files) can be generated using the Sitecore CLI and two scripts in the `ps/` folder.
+
+## Prerequisites
+
+- [.NET SDK](https://dotnet.microsoft.com/download)
+- Sitecore CLI local tool (restored via `dotnet tool restore`)
+
+## Setup (first time)
+
+```powershell
+dotnet tool restore
+```
+
+## Scripts
+
+### `ps/Generate-Modules.ps1`
+
+Scans all Unicorn serialization configs under `src/Feature` and `src/Foundation` and generates
+a `*.module.json` file per configuration into `modules/Feature/` and `modules/Foundation/`.
+
+```powershell
+.\ps\Generate-Modules.ps1
+```
+
+### `ps/Generate-Dat.ps1`
+
+Reads every `*.module.json` under `modules/` and produces one `.dat` resource package per module
+into the `_out/` folder using `dotnet sitecore res-pkg create`.
+
+```powershell
+.\ps\Generate-Dat.ps1
+```
+
+## Full workflow
+
+```powershell
+dotnet tool restore          # once, or after cloning
+.\ps\Generate-Modules.ps1   # regenerate module definitions from Unicorn configs
+.\ps\Generate-Dat.ps1       # build .dat packages into _out/
+```

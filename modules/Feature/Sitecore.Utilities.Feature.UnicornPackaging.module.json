@@ -1,0 +1,14 @@
+{
+  "namespace": "Sitecore.Utilities.Feature.UnicornPackaging",
+  "items": {
+    "path": "~/src/Feature/UnicornPackaging/serialization",
+    "includes": [
+      {
+        "name": "PowerShell",
+        "database": "master",
+        "path": "/sitecore/system/Modules/PowerShell/Script Library/Utilities/UnicornPackaging",
+        "scope": "ItemAndDescendants"
+      }
+    ]
+  }
+}
